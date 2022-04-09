@@ -1,0 +1,6 @@
+port: 80
+
+pg:
+  port: 5432
+  user: root
+  pass: password

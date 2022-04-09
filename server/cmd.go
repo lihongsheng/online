@@ -19,6 +19,7 @@ var (
 )
 
 func init() {
+	// 这段代码有屌用
 	go sigExitOnce.Do(func() {
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, syscall.SIGTERM, syscall.SIGINT, syscall.SIGKILL)
@@ -36,9 +37,7 @@ func init() {
 
 func main() {
 	app := cli.NewApp()
-
 	app.Commands = []cli.Command{}
-
 	app.Flags = []cli.Flag{
 		cli.IntFlag{
 			Name:  "port",
@@ -61,11 +60,12 @@ func main() {
 
 	app.Action = func(c *cli.Context) error {
 		println("------------Yakit Online Banner-----------")
+		// 生成 链接 Postgres 的信息
 		pg := api.GeneratePostgresParams("127.0.0.1", 5432, "root", "password")
-		println("------------Yakit Online Start------------")
 		log.Info("start to run server")
+		// 启动服务
 		err := api.StartServer(
-			pg,
+			pg, // Postgres 数据库链接信息
 			c.Int("port"),  // web port
 			c.String("fe"), // frontend dir
 		)
@@ -73,17 +73,10 @@ func main() {
 			log.Errorf("start yaklang.online service failed: %v", err)
 			return err
 		}
-
 		ctx := context.Background()
 		select {
 		case <-ctx.Done():
 		}
-
-		//grpcTrans := grpc.NewServer(
-		//	grpc.MaxRecvMsgSize(100*1024*1024),
-		//	grpc.MaxSendMsgSize(100*1024*1024),
-		//)
-		//pb.RegisterOnlineServer(grpcTrans, nil)
 
 		return errors.New("server finished")
 	}

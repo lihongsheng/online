@@ -70,8 +70,8 @@ func NewDBManagerWithMigrate(params string, migrate bool) (*Manager, error) {
 
 func (m *Manager) AutoMigrate() {
 	log.Info("start to migrate models")
-
-	m.DB.AutoMigrate(&User{}, &Operation{}, &YakitPlugin{})
+	// 不要自动生成
+	//m.DB.AutoMigrate(&User{},)
 	log.Info("migrate all models finished")
 }
 

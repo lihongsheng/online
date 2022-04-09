@@ -7,221 +7,66 @@ info:
 
 schemes:
   - http
-
 basePath: /api
-
 consumes:
   - application/json
-
 produces:
   - application/json
 
-securityDefinitions:
-  user:
-    type: apiKey
-    in: header
-    name: Authorization
-  trusted:
-    type: apiKey
-    in: header
-    name: Authorization
+#securityDefinitions:
+#  user:
+#    type: apiKey
+#    in: header
+#    name: Authorization
+#  trusted:
+#    type: apiKey
+#    in: header
+#    name: Authorization
 
-security:
-  - user: [ ]
+#security:
+#  - user: [ ]
 
 paths:
-  /auth/from-github/callback:
+  # 回调地址
+  /auth/redirect:
     get:
       security: [ ]
       parameters:
         - in: query
           type: string
+          description: "auth 平台 返回的用户授权码"
           name: code
+        - in: query
+          name: auth_type
+          type: string
+          description: "auth 平台类型"
       responses:
         200:
           $ref: "#/responses/ActionSucceeded"
-  /auth/from-github:
+  # 获取跳转URL
+  /auth/from:
     get:
       security: [ ]
-      parameters: [ ]
+      parameters:
+        - in: query
+          type: string
+          description: "login auth type"
+          name: type
       responses:
         200:
           description: "Fetch Github Oauth URL"
           schema:
             type: string
-  /user/fetch:
+  # 支持的三方登录平台
+  /auth/list:
     get:
-      parameters:
-        - in: query
-          type: integer
-          name: id
-      responses:
-        200:
-          description: "查询 User 记录"
-          schema:
-            $ref: "#/definitions/User"
-  /user:
-    get:
-      security:
-        - trusted: [ ]
-      parameters:
-        - $ref: "#/parameters/Page"
-        - $ref: "#/parameters/Order"
-        - $ref: "#/parameters/Limit"
-        - $ref: "#/parameters/OrderBy"
-        - in: query
-          type: string
-          name: name
-      responses:
-        200:
-          description: "查询 User 记录"
-          schema:
-            $ref: "#/definitions/UsersResponse"
-    delete:
-      security:
-        - trusted: [ ]
-      parameters:
-        - in: query
-          name: id
-          type: integer
-      responses:
-        200:
-          $ref: "#/responses/ActionSucceeded"
-  /user/tags:
-    get:
+      security: [ ]
       parameters: [ ]
       responses:
         200:
-          description: "查询 /user  所有的Tags"
+          description: "支持的三方登录平台"
           schema:
-            type: array
-            items:
-              type: string
-    post:
-      parameters:
-        - in: query
-          type: integer
-          name: id
-          required: true
-        - in: query
-          type: string
-          enum:
-            - add
-            - set
-          name: op
-        - in: query
-          type: array
-          items:
-            type: string
-          name: tags
-      responses:
-        200:
-          $ref: "#/responses/ActionSucceeded"
-  /operation:
-    get:
-      parameters:
-        - $ref: "#/parameters/Page"
-        - $ref: "#/parameters/Order"
-        - $ref: "#/parameters/Limit"
-        - $ref: "#/parameters/OrderBy"
-        - in: query
-          type: string
-          name: name
-      responses:
-        200:
-          description: "查询 Operation 记录"
-          schema:
-            $ref: "#/definitions/OperationsResponse"
-    post:
-      parameters:
-        - in: body
-          name: Data
-          schema:
-            $ref: "#/definitions/NewOperation"
-      responses:
-        200:
-          $ref: "#/responses/ActionSucceeded"
-    delete:
-      parameters:
-        - in: query
-          name: id
-          type: integer
-      responses:
-        200:
-          $ref: "#/responses/ActionSucceeded"
-  /yakit/plugin/fetch:
-    get:
-      parameters:
-        - in: query
-          type: integer
-          name: id
-      responses:
-        200:
-          description: "查询 YakitPlugin 记录"
-          schema:
-            $ref: "#/definitions/YakitPlugin"
-  /yakit/plugin:
-    get:
-      parameters:
-        - $ref: "#/parameters/Page"
-        - $ref: "#/parameters/Order"
-        - $ref: "#/parameters/Limit"
-        - $ref: "#/parameters/OrderBy"
-        - in: query
-          type: string
-          name: name
-      responses:
-        200:
-          description: "查询 YakitPlugin 记录"
-          schema:
-            $ref: "#/definitions/YakitPluginsResponse"
-    post:
-      parameters:
-        - in: body
-          name: Data
-          schema:
-            $ref: "#/definitions/NewYakitPlugin"
-      responses:
-        200:
-          $ref: "#/responses/ActionSucceeded"
-    delete:
-      parameters:
-        - in: query
-          name: id
-          type: integer
-      responses:
-        200:
-          $ref: "#/responses/ActionSucceeded"
-  /yakit/plugin/tags:
-    get:
-      parameters: [ ]
-      responses:
-        200:
-          description: "查询 /yakit/plugin  所有的Tags"
-          schema:
-            type: array
-            items:
-              type: string
-    post:
-      parameters:
-        - in: query
-          type: integer
-          name: id
-          required: true
-        - in: query
-          type: string
-          enum:
-            - add
-            - set
-          name: op
-        - in: query
-          type: array
-          items:
-            type: string
-          name: tags
-      responses:
-        200:
-          $ref: "#/responses/ActionSucceeded"
+            $ref: "#/definitions/AuthList"
 
 responses:
   ActionSucceeded:
@@ -233,183 +78,21 @@ responses:
     schema:
       $ref: '#/definitions/ActionFailed'
 
-parameters:
-  Page:
-    name: page
-    in: query
-    type: integer
-    default: 1
-  Limit:
-    name: limit
-    type: integer
-    in: query
-    default: 20
-  OrderBy:
-    name: order_by
-    type: string
-    in: query
-  Order:
-    name: order
-    type: string
-    in: query
-    default: "desc"
-    enum:
-      - asc
-      - desc
-
 definitions:
-  UsersResponse:
-    allOf:
-      - $ref: "#/definitions/Paging"
-    required:
-      - data
-    properties:
-      data:
-        type: array
-        items:
-          $ref: "#/definitions/User"
-  User:
-    allOf:
-      - $ref: "#/definitions/GormBaseModel"
-      - $ref: "#/definitions/NewUser"
-  NewUser:
-    type: object
-    required:
-      - uesr_unique_id
-      - user_verbose
-      - from_platform
-      - trusted
-      - tags
-    properties:
-      tags:
-        type: array
-        items:
+  AuthList:
+    type: array
+    items:
+      type: object
+      properties:
+        auth_name:
           type: string
-      uesr_unique_id:
-        type: string
-      user_verbose:
-        type: string
-      from_platform:
-        type: string
-      trusted:
-        type: boolean
-      email:
-        type: string
-  OperationsResponse:
-    allOf:
-      - $ref: "#/definitions/Paging"
-    required:
-      - data
-    properties:
-      data:
-        type: array
-        items:
-          $ref: "#/definitions/Operation"
-  Operation:
-    allOf:
-      - $ref: "#/definitions/GormBaseModel"
-      - $ref: "#/definitions/NewOperation"
-  NewOperation:
-    type: object
-    required:
-      - type
-      - trigger_user_unique_id
-      - operation_plugin_id
-    properties:
-      type:
-        type: string
-      trigger_user_unique_id:
-        type: string
-      operation_plugin_id:
-        type: string
-      extra:
-        type: string
-  YakitPluginsResponse:
-    allOf:
-      - $ref: "#/definitions/Paging"
-    required:
-      - data
-    properties:
-      data:
-        type: array
-        items:
-          $ref: "#/definitions/YakitPlugin"
-  YakitPlugin:
-    allOf:
-      - $ref: "#/definitions/GormBaseModel"
-      - $ref: "#/definitions/NewYakitPlugin"
-  YakitPluginParam:
-    type: object
-    required:
-      - field
-    properties:
-      field:
-        type: string
-      default_value:
-        type: string
-      type_verbose:
-        type: string
-      field_verbose:
-        type: string
-      help:
-        type: string
-      required:
-        type: boolean
-      group:
-        type: string
-  NewYakitPlugin:
-    type: object
-    required:
-      - type
-      - script_name
-      - authors
-      - content
-      - published_at
-      - tags
-      - is_official
-      - default_open
-    properties:
-      default_open:
-        type: boolean
-      is_official:
-        type: boolean
-      tags:
-        type: array
-        items:
+          description: 平台名字
+        auth_type:
           type: string
-      params:
-        type: array
-        items:
-          $ref: "#/definitions/YakitPluginParam"
-      type:
-        type: string
-      script_name:
-        type: string
-      authors:
-        type: array
-        items:
+          description: 平台类型
+        auth_icon:
           type: string
-      content:
-        type: string
-      published_at:
-        type: integer
-        description: "插件发布的时间"
-      downloaded_total:
-        type: integer
-        description: "下载次数"
-      stars:
-        type: integer
-        description: "获得推荐的次数"
-      forks:
-        type: integer
-        description: "被修改的次数"
-  Paging:
-    type: object
-    required:
-      - pagemeta
-    properties:
-      pagemeta:
-        $ref: "#/definitions/PageMeta"
+          description: 平台图标
   ActionFailed:
     type: object
     required:
@@ -437,30 +120,6 @@ definitions:
       ok:
         type: boolean
         description: 执行状态
-  PageMeta:
-    type: object
-    description: 描述分页信息的元信息
-    required:
-      - page
-      - limit
-      - total
-      - total_page
-    properties:
-      page:
-        type: integer
-        description: 页面索引
-        default: 1
-      limit:
-        type: integer
-        description: 页面数据条数限制
-        default: 20
-      total:
-        type: integer
-        description: 总共数据条数
-      total_page:
-        type: integer
-        description: 总页数
-        default: 1
   GormBaseModel:
     type: object
     required:
@@ -474,10 +133,46 @@ definitions:
         type: integer
       updated_at:
         type: integer
-  Principle:
-    type: object
-    required:
-      - user
+  User:
+    allOf:
+      - $ref: "#/definitions/GormBaseModel"
     properties:
-      user:
+      name:
         type: string
+        description: 用户名称
+      password:
+        type: string
+        description: 用户密码
+      phone:
+        type: string
+      email:
+        type: string
+      avtor:
+        type: string
+      register_time:
+        type: integer
+      status:
+        type: integer
+      login_time:
+        type: integer
+  UserAuthor:
+    allOf:
+      - $ref: "#/definitions/GormBaseModel"
+    properties:
+      auth_code:
+        type: string
+        description: 用户名称
+      auth_type:
+        type: string
+        description: 用户密码
+      phone:
+        type: string
+      extend:
+        type: string
+        description: 额外信息，直接存JSON，比如三方用户信息
+      access_token:
+        type: string
+      access_time:
+        type: string
+      user_id:
+        type: integer

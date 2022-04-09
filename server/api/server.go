@@ -130,6 +130,7 @@ func BasicAuth(handler http.HandlerFunc, username, password, realm string) http.
 }
 
 func NewAPIManager(postgresParams string, frontendDir string) (*APIManager, error) {
+	// 启动数据库
 	m, err := dbm.NewDBManager(postgresParams)
 	if err != nil {
 		return nil, fmt.Errorf("build database conn failed; %v", err)

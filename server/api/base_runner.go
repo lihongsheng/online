@@ -15,11 +15,9 @@ func GeneratePostgresParams(host string, port int, user string, password string)
 	if host == "" {
 		host = "127.0.0.1"
 	}
-
 	if port <= 0 {
 		port = 5432
 	}
-
 	if user == "" {
 		user = "root"
 	}
@@ -27,7 +25,6 @@ func GeneratePostgresParams(host string, port int, user string, password string)
 	if password == "" {
 		password = "password"
 	}
-
 	return fmt.Sprintf("host=%s port=%v user=%s dbname=%s password=%s sslmode=disable",
 		host, port, user,
 		"postgres", password,
@@ -71,6 +68,7 @@ func StartServer(
 		}
 	}()
 
+	// 等待启动服务
 	ticker := time.Tick(500 * time.Millisecond)
 	for {
 		select {
